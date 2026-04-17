@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Command Center | AgroEduLabs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #ffffff; color: #1e293b; overflow-x: hidden; }
+        .location-card { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-7xl mx-auto">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-12 border-b pb-8 border-slate-100">
+            <div class="text-center md:text-left">
+                <h1 class="text-4xl font-black tracking-tighter italic">AGRO<span class="text-green-500">COMMAND</span></h1>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.4em]">PADI 2026 Masterpiece Project</p>
+            </div>
+            <div id="real-clock" class="text-2xl font-mono font-bold text-slate-800 mt-4 md:mt-0">00:00:00</div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            
+            <div id="sector-soropadan" class="location-card group">
+                <div class="flex justify-between items-end mb-6">
+                    <div>
+                        <h2 class="text-3xl font-extrabold tracking-tight">SOROPADAN</h2>
+                        <p id="weather-soropadan" class="text-xs text-slate-400 font-bold uppercase tracking-widest italic mt-1">Memuat Cuaca...</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-4xl font-black text-slate-200" id="temp-soropadan">--°</span>
+                    </div>
+                </div>
+                
+                <div id="status-box-1" class="p-8 rounded-[40px] border-2 border-slate-100 bg-slate-50 transition-all duration-500 mb-6">
+                    <div class="flex justify-between items-start">
+                        <div id="icon-1" class="text-5xl">🚜</div>
+                        <div class="text-right">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Agen Panti</p>
+                            <p id="val-1" class="font-mono font-bold text-slate-600">----</p>
+                        </div>
+                    </div>
+                    <h3 id="txt-1" class="text-3xl font-black mt-4 uppercase italic">Mencari Sinyal...</h3>
+                    <p id="ins-1" class="text-sm mt-2 opacity-70 italic leading-relaxed">Menunggu laporan dari lahan Temanggung.</p>
+                </div>
+                <div class="h-48 w-full"><canvas id="chart-soropadan"></canvas></div>
+            </div>
+
+            <div id="sector-kendal" class="location-card group">
+                <div class="flex justify-between items-end mb-6">
+                    <div>
+                        <h2 class="text-3xl font-extrabold tracking-tight">KENDAL</h2>
+                        <p id="weather-kendal" class="text-xs text-slate-400 font-bold uppercase tracking-widest italic mt-1">Memuat Cuaca...</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-4xl font-black text-slate-200" id="temp-kendal">--°</span>
+                    </div>
+                </div>
+                
+                <div id="status-box-2" class="p-8 rounded-[40px] border-2 border-slate-100 bg-slate-50 transition-all duration-500 mb-6">
+                    <div class="flex justify-between items-start">
+                        <div id="icon-2" class="text-5xl">🚛</div>
+                        <div class="text-right">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Agen Mobile</p>
+                            <p id="val-2" class="font-mono font-bold text-slate-600">----</p>
+                        </div>
+                    </div>
+                    <h3 id="txt-2" class="text-3xl font-black mt-4 uppercase italic">Mencari Sinyal...</h3>
+                    <p id="ins-2" class="text-sm mt-2 opacity-70 italic leading-relaxed">Menunggu laporan dari pesisir Kendal.</p>
+                </div>
+                <div class="h-48 w-full"><canvas id="chart-kendal"></canvas></div>
+            </div>
+
+        </div>
+
+        <footer class="mt-20 text-center py-8 border-t border-slate-50">
+            <p class="text-slate-300 italic text-sm">"Berakar. Bergerak. Berarti." — AgroEduLabs Command Center</p>
+        </footer>
+    </div>
+
+    <script>
+        const webAppUrl = "https://script.google.com/macros/s/AKfycbyuimpq4fT0L8aArXfQ5Hfuot3xd1iyekCLmSBXcXSLIfQXXX3RHV8kqgFQCFIFck0L/exec";
+        let chartSoro, chartKendal;
+
+        async function init() {
+            updateWeather(-7.33, 110.22, 'weather-soropadan', 'temp-soropadan'); // Soro
+            updateWeather(-6.92, 110.20, 'weather-kendal', 'temp-kendal');      // Kendal
+            fetchData();
+            setInterval(fetchData, 8000);
+            setInterval(() => {
+                document.getElementById('real-clock').innerText = new Date().toLocaleTimeString('id-ID');
+            }, 1000);
+        }
+
+        async function updateWeather(lat, lon, descId, tempId) {
+            try {
+                const resp = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=bd5e378503939ddaee76f12ad7a97608&units=metric&lang=id`);
+                const w = await resp.json();
+                document.getElementById(descId).innerText = w.weather[0].description;
+                document.getElementById(tempId).innerText = Math.round(w.main.temp) + "°";
+            } catch(e) { console.log("Weather error"); }
+        }
+
+        async function fetchData() {
+            const resp = await fetch(webAppUrl);
+            const data = await resp.json();
+            
+            // Filter Data per Lokasi
+            const soroData = data.filter(i => i.id === "UNIT_1" || i.id === "AGEN_PANTI");
+            const kendalData = data.filter(i => i.id === "UNIT_2" || i.id === "AGEN_MOBILE");
+
+            updateSector(soroData, 'chart-soropadan', 'status-box-1', 'txt-1', 'ins-1', 'icon-1', 'val-1');
+            updateSector(kendalData, 'chart-kendal', 'status-box-2', 'txt-2', 'ins-2', 'icon-2', 'val-2');
+        }
+
+        function updateSector(locData, chartId, boxId, txtId, insId, iconId, valId) {
+            if (locData.length === 0) return;
+            const last = locData[locData.length - 1];
+            const val = parseInt(last.nilai);
+            
+            // Update UI
+            document.getElementById(valId).innerText = val;
+            const box = document.getElementById(boxId);
+            
+            if (val > 3500) {
+                box.className = "p-8 rounded-[40px] border-2 border-red-100 bg-red-50 text-red-900 shadow-lg shadow-red-100/50 mb-6";
+                document.getElementById(txtId).innerText = "Tanah Haus";
+                document.getElementById(insId).innerText = "Tanaman butuh air segera kawan.";
+                document.getElementById(iconId).innerText = "🏜️";
+            } else {
+                box.className = "p-8 rounded-[40px] border-2 border-green-100 bg-green-50 text-green-900 shadow-lg shadow-green-100/50 mb-6";
+                document.getElementById(txtId).innerText = "Tanah Segar";
+                document.getElementById(insId).innerText = "Kondisi sangat ideal untuk tumbuh.";
+                document.getElementById(iconId).innerText = "🌱";
+            }
+
+            // Update Grafik (Simple Line)
+            const ctx = document.getElementById(chartId).getContext('2d');
+            const labels = locData.map(d => "");
+            const points = locData.map(d => d.nilai);
+
+            if (chartId === 'chart-soropadan') {
+                if (chartSoro) { chartSoro.data.labels = labels; chartSoro.data.datasets[0].data = points; chartSoro.update(); }
+                else chartSoro = createChart(ctx, points, labels);
+            } else {
+                if (chartKendal) { chartKendal.data.labels = labels; chartKendal.data.datasets[0].data = points; chartKendal.update(); }
+                else chartKendal = createChart(ctx, points, labels);
+            }
+        }
+
+        function createChart(ctx, data, labels) {
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        borderColor: '#94a3b8',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: false,
+                        tension: 0.4
+                    }]
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { reverse: true, display: false }, x: { display: false } }
+                }
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>
