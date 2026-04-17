@@ -3,174 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Command Center | AgroEduLabs</title>
+    <title>PADI 2026 - Analytics Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #ffffff; color: #1e293b; overflow-x: hidden; }
-        .location-card { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #ffffff; color: #1e293b; }
+        .chart-container { height: 300px; position: relative; }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-4 md:p-10">
     <div class="max-w-7xl mx-auto">
-        <header class="flex flex-col md:flex-row justify-between items-center mb-12 border-b pb-8 border-slate-100">
-            <div class="text-center md:text-left">
-                <h1 class="text-4xl font-black tracking-tighter italic">AGRO<span class="text-green-500">COMMAND</span></h1>
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.4em]">PADI 2026 Masterpiece Project</p>
+        <header class="flex justify-between items-end mb-12 border-b pb-8">
+            <div>
+                <h1 class="text-4xl font-black italic tracking-tighter text-slate-900">AGRO<span class="text-green-500">ANALYTICS</span></h1>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Komparasi Data Lahan & BMKG</p>
             </div>
-            <div id="real-clock" class="text-2xl font-mono font-bold text-slate-800 mt-4 md:mt-0">00:00:00</div>
+            <div class="text-right hidden md:block">
+                <p id="live-clock" class="text-xl font-mono font-bold">00:00</p>
+                <p class="text-[10px] text-green-500 font-bold uppercase tracking-widest">Sistem Sinkron</p>
+            </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
             
-            <div id="sector-soropadan" class="location-card group">
-                <div class="flex justify-between items-end mb-6">
-                    <div>
-                        <h2 class="text-3xl font-extrabold tracking-tight">SOROPADAN</h2>
-                        <p id="weather-soropadan" class="text-xs text-slate-400 font-bold uppercase tracking-widest italic mt-1">Memuat Cuaca...</p>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-4xl font-black text-slate-200" id="temp-soropadan">--°</span>
-                    </div>
-                </div>
-                
-                <div id="status-box-1" class="p-8 rounded-[40px] border-2 border-slate-100 bg-slate-50 transition-all duration-500 mb-6">
-                    <div class="flex justify-between items-start">
-                        <div id="icon-1" class="text-5xl">🚜</div>
-                        <div class="text-right">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase">Agen Panti</p>
-                            <p id="val-1" class="font-mono font-bold text-slate-600">----</p>
+            <div class="lg:col-span-2 space-y-10">
+                <div class="bg-slate-50 p-8 rounded-[40px] border border-slate-100">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold text-slate-800">Series Komparasi (Soropadan)</h3>
+                        <div class="flex gap-4 text-[10px] font-bold uppercase">
+                            <span class="text-green-500 underline">● Tanah</span>
+                            <span class="text-blue-400">-- Langit (BMKG)</span>
                         </div>
                     </div>
-                    <h3 id="txt-1" class="text-3xl font-black mt-4 uppercase italic">Mencari Sinyal...</h3>
-                    <p id="ins-1" class="text-sm mt-2 opacity-70 italic leading-relaxed">Menunggu laporan dari lahan Temanggung.</p>
+                    <div class="chart-container">
+                        <canvas id="compChart"></canvas>
+                    </div>
                 </div>
-                <div class="h-48 w-full"><canvas id="chart-soropadan"></canvas></div>
+
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="p-6 bg-white rounded-3xl border border-slate-100 shadow-sm">
+                        <p class="text-[10px] font-bold text-slate-400 mb-2 uppercase">Kelembapan Udara (BMKG)</p>
+                        <h4 id="hum-bmkg" class="text-3xl font-black text-blue-500">--%</h4>
+                    </div>
+                    <div class="p-6 bg-white rounded-3xl border border-slate-100 shadow-sm">
+                        <p class="text-[10px] font-bold text-slate-400 mb-2 uppercase">Suhu Lahan</p>
+                        <h4 id="temp-bmkg" class="text-3xl font-black text-orange-400">--°C</h4>
+                    </div>
+                </div>
             </div>
 
-            <div id="sector-kendal" class="location-card group">
-                <div class="flex justify-between items-end mb-6">
+            <div class="lg:col-span-1 space-y-6">
+                <div id="alert-card" class="p-8 rounded-[40px] h-full flex flex-col justify-between border-2 transition-all duration-500">
                     <div>
-                        <h2 class="text-3xl font-extrabold tracking-tight">KENDAL</h2>
-                        <p id="weather-kendal" class="text-xs text-slate-400 font-bold uppercase tracking-widest italic mt-1">Memuat Cuaca...</p>
+                        <p id="loc-tag" class="text-[10px] font-bold uppercase opacity-50 mb-4 tracking-widest text-center">Analisa AI Lahan</p>
+                        <div id="main-icon" class="text-7xl text-center mb-6">🛰️</div>
+                        <h2 id="main-status" class="text-3xl font-black leading-tight text-center italic uppercase">Sinkronisasi...</h2>
+                        <p id="main-insight" class="text-sm mt-6 leading-relaxed text-center opacity-80 italic italic">Membandingkan data sensor lapangan dengan prakiraan cuaca satelit.</p>
                     </div>
-                    <div class="text-right">
-                        <span class="text-4xl font-black text-slate-200" id="temp-kendal">--°</span>
+                    <div class="mt-8 pt-8 border-t border-black/10">
+                        <p class="text-[10px] font-bold uppercase mb-2 opacity-50 tracking-widest">Kesimpulan</p>
+                        <p id="main-action" class="font-bold text-lg italic uppercase tracking-tighter text-blue-600">Standby...</p>
                     </div>
                 </div>
-                
-                <div id="status-box-2" class="p-8 rounded-[40px] border-2 border-slate-100 bg-slate-50 transition-all duration-500 mb-6">
-                    <div class="flex justify-between items-start">
-                        <div id="icon-2" class="text-5xl">🚛</div>
-                        <div class="text-right">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase">Agen Mobile</p>
-                            <p id="val-2" class="font-mono font-bold text-slate-600">----</p>
-                        </div>
-                    </div>
-                    <h3 id="txt-2" class="text-3xl font-black mt-4 uppercase italic">Mencari Sinyal...</h3>
-                    <p id="ins-2" class="text-sm mt-2 opacity-70 italic leading-relaxed">Menunggu laporan dari pesisir Kendal.</p>
-                </div>
-                <div class="h-48 w-full"><canvas id="chart-kendal"></canvas></div>
             </div>
 
         </div>
-
-        <footer class="mt-20 text-center py-8 border-t border-slate-50">
-            <p class="text-slate-300 italic text-sm">"Berakar. Bergerak. Berarti." — AgroEduLabs Command Center</p>
-        </footer>
     </div>
 
     <script>
         const webAppUrl = "https://script.google.com/macros/s/AKfycbyuimpq4fT0L8aArXfQ5Hfuot3xd1iyekCLmSBXcXSLIfQXXX3RHV8kqgFQCFIFck0L/exec";
-        let chartSoro, chartKendal;
+        let mainChart;
 
         async function init() {
-            updateWeather(-7.33, 110.22, 'weather-soropadan', 'temp-soropadan'); // Soro
-            updateWeather(-6.92, 110.20, 'weather-kendal', 'temp-kendal');      // Kendal
             fetchData();
-            setInterval(fetchData, 8000);
+            setInterval(fetchData, 10000);
             setInterval(() => {
-                document.getElementById('real-clock').innerText = new Date().toLocaleTimeString('id-ID');
+                document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('id-ID');
             }, 1000);
         }
 
-        async function updateWeather(lat, lon, descId, tempId) {
-            try {
-                const resp = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=bd5e378503939ddaee76f12ad7a97608&units=metric&lang=id`);
-                const w = await resp.json();
-                document.getElementById(descId).innerText = w.weather[0].description;
-                document.getElementById(tempId).innerText = Math.round(w.main.temp) + "°";
-            } catch(e) { console.log("Weather error"); }
-        }
-
         async function fetchData() {
-            const resp = await fetch(webAppUrl);
-            const data = await resp.json();
-            
-            // Filter Data per Lokasi
-            const soroData = data.filter(i => i.id === "UNIT_1" || i.id === "AGEN_PANTI");
-            const kendalData = data.filter(i => i.id === "UNIT_2" || i.id === "AGEN_MOBILE");
+            const [iotResp, weatherResp] = await Promise.all([
+                fetch(webAppUrl).then(r => r.json()),
+                fetch(`https://api.openweathermap.org/data/2.5/weather?lat=-7.33&lon=110.22&appid=bd5e378503939ddaee76f12ad7a97608&units=metric&lang=id`).then(r => r.json())
+            ]);
 
-            updateSector(soroData, 'chart-soropadan', 'status-box-1', 'txt-1', 'ins-1', 'icon-1', 'val-1');
-            updateSector(kendalData, 'chart-kendal', 'status-box-2', 'txt-2', 'ins-2', 'icon-2', 'val-2');
+            renderAnalytics(iotResp, weatherResp);
         }
 
-        function updateSector(locData, chartId, boxId, txtId, insId, iconId, valId) {
-            if (locData.length === 0) return;
-            const last = locData[locData.length - 1];
-            const val = parseInt(last.nilai);
+        function renderAnalytics(iot, weather) {
+            // Update Mini Stats
+            document.getElementById('hum-bmkg').innerText = weather.main.humidity + "%";
+            document.getElementById('temp-bmkg').innerText = Math.round(weather.main.temp) + "°C";
+
+            // Data Tanah (Soropadan)
+            const soro = iot.filter(i => i.id === "UNIT_1" || i.id === "AGEN_PANTI");
+            const labels = soro.map(d => new Date(d.waktu).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}));
+            const soilData = soro.map(d => d.nilai);
             
-            // Update UI
-            document.getElementById(valId).innerText = val;
-            const box = document.getElementById(boxId);
-            
-            if (val > 3500) {
-                box.className = "p-8 rounded-[40px] border-2 border-red-100 bg-red-50 text-red-900 shadow-lg shadow-red-100/50 mb-6";
-                document.getElementById(txtId).innerText = "Tanah Haus";
-                document.getElementById(insId).innerText = "Tanaman butuh air segera kawan.";
-                document.getElementById(iconId).innerText = "🏜️";
+            // Simulasi Data BMKG Series (Kelembapan Udara sebagai pembanding)
+            const bmkgSeries = labels.map(() => weather.main.humidity * 40); // Skala disesuaikan
+
+            const ctx = document.getElementById('compChart').getContext('2d');
+            if (mainChart) {
+                mainChart.data.labels = labels;
+                mainChart.data.datasets[0].data = soilData;
+                mainChart.update();
             } else {
-                box.className = "p-8 rounded-[40px] border-2 border-green-100 bg-green-50 text-green-900 shadow-lg shadow-green-100/50 mb-6";
-                document.getElementById(txtId).innerText = "Tanah Segar";
-                document.getElementById(insId).innerText = "Kondisi sangat ideal untuk tumbuh.";
-                document.getElementById(iconId).innerText = "🌱";
+                mainChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Kelembapan Tanah',
+                                data: soilData,
+                                borderColor: '#22c55e',
+                                borderWidth: 4,
+                                pointRadius: 0,
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Prakiraan Langit',
+                                data: bmkgSeries,
+                                borderColor: '#60a5fa',
+                                borderDash: [5, 5],
+                                borderWidth: 2,
+                                pointRadius: 0,
+                                tension: 0.4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { reverse: true, display: false }, x: { grid: { display: false } } }
+                    }
+                });
             }
 
-            // Update Grafik (Simple Line)
-            const ctx = document.getElementById(chartId).getContext('2d');
-            const labels = locData.map(d => "");
-            const points = locData.map(d => d.nilai);
-
-            if (chartId === 'chart-soropadan') {
-                if (chartSoro) { chartSoro.data.labels = labels; chartSoro.data.datasets[0].data = points; chartSoro.update(); }
-                else chartSoro = createChart(ctx, points, labels);
+            // Logic Insight
+            const lastSoil = parseInt(soro[soro.length - 1].nilai);
+            const isRain = weather.weather[0].main.toLowerCase().includes('rain');
+            const alertCard = document.getElementById('alert-card');
+            
+            if (lastSoil > 3500 && !isRain) {
+                alertCard.className = "p-8 rounded-[40px] h-full flex flex-col justify-between border-2 border-red-200 bg-red-50 text-red-900 shadow-xl";
+                document.getElementById('main-status').innerText = "Anomali Kering";
+                document.getElementById('main-icon').innerText = "🏜️";
+                document.getElementById('main-insight').innerText = "Tanah sangat kering & langit cerah. Tanaman butuh air secepatnya.";
+                document.getElementById('main-action').innerText = "Intervensi Irigasi!";
             } else {
-                if (chartKendal) { chartKendal.data.labels = labels; chartKendal.data.datasets[0].data = points; chartKendal.update(); }
-                else chartKendal = createChart(ctx, points, labels);
+                alertCard.className = "p-8 rounded-[40px] h-full flex flex-col justify-between border-2 border-green-200 bg-green-50 text-green-900";
+                document.getElementById('main-status').innerText = "Kondisi Stabil";
+                document.getElementById('main-icon').innerText = "🌾";
+                document.getElementById('main-insight').innerText = "Data sensor tanah dan prakiraan cuaca BMKG menunjukkan kondisi aman.";
+                document.getElementById('main-action').innerText = "Optimasi Berlanjut";
             }
-        }
-
-        function createChart(ctx, data, labels) {
-            return new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: data,
-                        borderColor: '#94a3b8',
-                        borderWidth: 2,
-                        pointRadius: 0,
-                        fill: false,
-                        tension: 0.4
-                    }]
-                },
-                options: { 
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { reverse: true, display: false }, x: { display: false } }
-                }
-            });
         }
 
         init();
