@@ -3,169 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Command Center | AgroEduLabs</title>
+    <title>PADI 2026 | Digital Command Center</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #ffffff; color: #1e293b; }
-        .tab-active { color: #10b981; border-bottom: 4px solid #10b981; }
-        .glass-card { background: #f8fafc; border: 1px solid #f1f5f9; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        
+        .bg-lahan-blur {
+            background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.75)), 
+                        url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=2000&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
     </style>
 </head>
-<body class="p-4 md:p-8">
-    <div class="max-w-5xl mx-auto">
-        <header class="mb-10">
-            <div class="flex justify-between items-center mb-8">
-                <h1 class="text-3xl font-black tracking-tighter italic text-slate-900">AGRO<span class="text-green-500">CONTROL</span></h1>
-                <div id="live-clock" class="text-sm font-mono font-bold bg-slate-100 px-4 py-2 rounded-full">00:00:00</div>
+
+<body class="bg-lahan-blur min-h-screen text-white p-4 md:p-10 antialiased">
+
+    <div class="max-w-6xl mx-auto">
+        
+        <header class="flex justify-between items-start mb-16">
+            <div class="space-y-1">
+                <h1 class="text-3xl md:text-5xl font-extrabold tracking-tighter">PADI 2026</h1>
+                <div class="flex items-center gap-2">
+                    <span class="h-2 w-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                    <p class="text-[10px] uppercase tracking-[0.4em] font-bold text-emerald-400">
+                        AgroEduLabs Digital Command Center
+                    </p>
+                </div>
             </div>
             
-            <nav class="flex gap-8 border-b border-slate-100">
-                <button onclick="switchTab('soropadan')" id="btn-soropadan" class="pb-4 text-sm font-bold tracking-widest uppercase tab-active transition-all">Sektor Soropadan</button>
-                <button onclick="switchTab('kendal')" id="btn-kendal" class="pb-4 text-sm font-bold tracking-widest uppercase text-slate-400 hover:text-slate-600 transition-all">Sektor Kendal</button>
-            </nav>
+            <div class="border-2 border-white/90 px-5 py-2 backdrop-blur-md">
+                <span class="text-xl font-black tracking-[0.3em]">OYOD</span>
+            </div>
         </header>
 
-        <main>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="md:col-span-2 glass-card p-8 rounded-[40px] flex justify-between items-center">
-                    <div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Prakiraan Langit (BMKG)</p>
-                        <h2 id="weather-desc" class="text-2xl font-black capitalize">Memuat...</h2>
-                    </div>
-                    <div id="weather-temp" class="text-5xl font-black text-slate-800">--°</div>
+        <main class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+            
+            <div class="glass-card rounded-2xl p-8 transition-transform hover:scale-[1.02] duration-300">
+                <p class="text-[10px] uppercase tracking-widest text-white/40 mb-6 font-bold">Monitor Site: Kendal</p>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-6xl font-light tracking-tighter mono">24.5</span>
+                    <span class="text-2xl font-light text-white/60">°C</span>
                 </div>
-                <div class="glass-card p-8 rounded-[40px] flex flex-col justify-center text-center">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Kelembapan Udara</p>
-                    <h2 id="weather-hum" class="text-4xl font-black text-blue-500">--%</h2>
+                <div class="mt-6 flex items-center gap-2 text-[10px] text-emerald-400 font-bold uppercase tracking-widest border-t border-white/5 pt-4">
+                    <span class="animate-pulse">●</span> Optimal Condition
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-2 glass-card p-8 rounded-[40px]">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="font-bold text-slate-800 italic">Series Kelembapan Lahan</h3>
-                        <span class="text-[10px] font-bold text-green-500 px-3 py-1 bg-green-50 rounded-full uppercase">● Live Sensor</span>
-                    </div>
-                    <div class="h-64"><canvas id="mainChart"></canvas></div>
+            <div class="glass-card rounded-2xl p-8 transition-transform hover:scale-[1.02] duration-300">
+                <p class="text-[10px] uppercase tracking-widest text-white/40 mb-6 font-bold">Monitor Site: Soropadan</p>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-6xl font-light tracking-tighter text-purple-200 mono">88</span>
+                    <span class="text-2xl font-light text-white/60">%</span>
                 </div>
-
-                <div id="status-card" class="p-8 rounded-[40px] flex flex-col justify-between border-2 transition-all duration-500">
-                    <div>
-                        <div id="status-icon" class="text-7xl mb-6">📡</div>
-                        <h2 id="status-text" class="text-3xl font-black leading-tight mb-4 uppercase italic">Sinkron...</h2>
-                        <p id="insight-text" class="text-sm opacity-80 italic leading-relaxed">Membaca data dari lapangan.</p>
-                    </div>
-                    <div class="mt-8 pt-6 border-t border-black/10">
-                        <p class="text-[10px] font-bold uppercase mb-1 opacity-50">Saran Sistem</p>
-                        <p id="action-text" class="font-bold">Menghitung...</p>
-                    </div>
+                <div class="mt-6 flex items-center gap-2 text-[10px] text-purple-300 font-bold uppercase tracking-widest border-t border-white/5 pt-4">
+                    Soil Moisture: High
                 </div>
             </div>
+
+            <div class="glass-card rounded-2xl p-8 border-purple-500/30 bg-purple-900/10 transition-transform hover:scale-[1.02] duration-300">
+                <p class="text-[10px] uppercase tracking-widest text-purple-300/60 mb-6 font-bold">Production: Bawang Merah</p>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-6xl font-light tracking-tighter mono">1.2</span>
+                    <span class="text-2xl font-light text-white/60">Tons</span>
+                </div>
+                <p class="mt-6 text-[12px] italic text-white/40 font-serif border-t border-white/5 pt-4">
+                    "Berakar, Bergerak, Berarti"
+                </p>
+            </div>
+
         </main>
 
-        <footer class="mt-16 py-8 border-t border-slate-50 text-center">
-            <p class="text-slate-300 italic text-xs uppercase tracking-[0.3em]">"Berakar. Bergerak. Berarti." — AgroEduLabs</p>
+        <footer class="flex flex-col md:flex-row justify-between items-center opacity-30 text-[10px] tracking-[0.2em] uppercase space-y-4 md:space-y-0">
+            <div>ASN Garden Project • Kendal • Soropadan</div>
+            <div>Handbook Deployment v.2026.04</div>
         </footer>
+
     </div>
 
-    <script>
-        const webAppUrl = "https://script.google.com/macros/s/AKfycbyuimpq4fT0L8aArXfQ5Hfuot3xd1iyekCLmSBXcXSLIfQXXX3RHV8kqgFQCFIFck0L/exec";
-        let currentSektor = 'soropadan';
-        let mainChart;
-
-        async function init() {
-            fetchData();
-            setInterval(fetchData, 8000);
-            setInterval(() => {
-                document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('id-ID');
-            }, 1000);
-        }
-
-        function switchTab(sektor) {
-            currentSektor = sektor;
-            document.getElementById('btn-soropadan').className = (sektor === 'soropadan') ? "pb-4 text-sm font-bold tracking-widest uppercase tab-active" : "pb-4 text-sm font-bold tracking-widest uppercase text-slate-400";
-            document.getElementById('btn-kendal').className = (sektor === 'kendal') ? "pb-4 text-sm font-bold tracking-widest uppercase tab-active" : "pb-4 text-sm font-bold tracking-widest uppercase text-slate-400";
-            fetchData();
-        }
-
-        async function fetchData() {
-            // Setting koordinat berdasarkan tab
-            const lat = (currentSektor === 'soropadan') ? -7.33 : -6.92;
-            const lon = (currentSektor === 'soropadan') ? 110.22 : 110.20;
-
-            const [iotResp, weatherResp] = await Promise.all([
-                fetch(webAppUrl).then(r => r.json()),
-                fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=bd5e378503939ddaee76f12ad7a97608&units=metric&lang=id`).then(r => r.json())
-            ]);
-
-            renderDashboard(iotResp, weatherResp);
-        }
-
-        function renderDashboard(iot, weather) {
-            // Update Cuaca
-            document.getElementById('weather-desc').innerText = weather.weather[0].description;
-            document.getElementById('weather-temp').innerText = Math.round(weather.main.temp) + "°";
-            document.getElementById('weather-hum').innerText = weather.main.humidity + "%";
-
-            // Filter Data IoT (Unit 1=Soro, Unit 2=Kendal)
-            const targetId = (currentSektor === 'soropadan') ? "UNIT_1" : "UNIT_2";
-            const filtered = iot.filter(i => i.id === targetId || (currentSektor === 'soropadan' ? i.id === "AGEN_PANTI" : i.id === "AGEN_MOBILE"));
-            
-            if (filtered.length === 0) return;
-
-            const labels = filtered.map(d => new Date(d.waktu).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}));
-            const values = filtered.map(d => d.nilai);
-
-            // Update Chart
-            const ctx = document.getElementById('mainChart').getContext('2d');
-            if (mainChart) {
-                mainChart.data.labels = labels;
-                mainChart.data.datasets[0].data = values;
-                mainChart.update();
-            } else {
-                mainChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            data: values,
-                            borderColor: '#22c55e',
-                            borderWidth: 4,
-                            pointRadius: 0,
-                            fill: true,
-                            backgroundColor: 'rgba(34, 197, 94, 0.05)',
-                            tension: 0.4
-                        }]
-                    },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: { y: { reverse: true, display: false }, x: { grid: { display: false } } }
-                    }
-                });
-            }
-
-            // Update Status Card
-            const lastVal = parseInt(filtered[filtered.length - 1].nilai);
-            const card = document.getElementById('status-card');
-            if (lastVal > 3500) {
-                card.className = "p-8 rounded-[40px] flex flex-col justify-between border-2 border-red-100 bg-red-50 text-red-900";
-                document.getElementById('status-text').innerText = "Tanah Haus";
-                document.getElementById('status-icon').innerText = "🏜️";
-                document.getElementById('insight-text').innerText = `Lahan di ${currentSektor} terdeteksi sangat kering.`;
-                document.getElementById('action-text').innerText = "Segera siram!";
-            } else {
-                card.className = "p-8 rounded-[40px] flex flex-col justify-between border-2 border-green-100 bg-green-50 text-green-900";
-                document.getElementById('status-text').innerText = "Tanah Segar";
-                document.getElementById('status-icon').innerText = "🌱";
-                document.getElementById('insight-text').innerText = `Kondisi air di lahan ${currentSektor} sangat ideal.`;
-                document.getElementById('action-text').innerText = "Pantau terus.";
-            }
-        }
-
-        init();
-    </script>
 </body>
 </html>
